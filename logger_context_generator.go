@@ -151,7 +151,7 @@ func (h *loggerContextGenerator) getRequestID(c echo.Context) string {
 	return requestID
 }
 
-func tryParseLogLevel(s string, defaultLogLevel labstacklog.Lvl) labstacklog.Lvl {
+func TryParseLogLevel(s string, defaultLogLevel labstacklog.Lvl) labstacklog.Lvl {
 	if len(s) == 0 {
 		return defaultLogLevel
 	}
@@ -197,11 +197,11 @@ func (h *loggerContextGenerator) AcquireContext(c echo.Context) *LoggerContext {
 	}
 
 	// Modify log level using a HTTP header if it contains a correct value
-	logLevel = tryParseLogLevel(header.Get(`X-Log-Level`), logLevel)
+	logLevel = TryParseLogLevel(header.Get(`X-Log-Level`), logLevel)
 
 	// Modify log level using a GET parameter if it contains a correct value
 	for _, v := range params[`x_log_level`] {
-		logLevel = tryParseLogLevel(v, logLevel)
+		logLevel = TryParseLogLevel(v, logLevel)
 	}
 
 	// Will we send stackTraces (related to the request)?
