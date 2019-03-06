@@ -143,6 +143,7 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 			continue
 		}
 		if strings.Index(line, `echolog`) == -1 {
+			line = line[1:]
 			logger = logger.WithField(`line`, line)
 			break
 		}
