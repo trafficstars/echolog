@@ -2,6 +2,7 @@ package echolog
 
 import (
 	"io"
+	"math/rand"
 	"runtime/debug"
 	"strings"
 
@@ -35,6 +36,21 @@ func (ctx *LoggerContext) init(generator *loggerContextGenerator, origCtx echo.C
 	ctx.logger = logger.WithField(`request_id`, requestID)
 	ctx.LogLevel = logLevel
 	ctx.IsStackTraceEnabled = isStackTraceEnabled
+}
+
+func GetDefaultContextLogger() *LoggerContextLogger {
+	r := &LoggerContextLogger{
+		requestID:           `undefined`,
+		logger:              GetDefaultLogger(),
+		LogLevel:            defaultContextLoggerSettings.defaultLogLevel,
+		IsStackTraceEnabled: rand.Float32() < defaultContextLoggerSettings.enableStackTraceFraction,
+	}
+
+	if rand.Float32() < defaultContextLoggerSettings.debugLogLevelFraction {
+		r.LogLevel = labstacklog.DEBUG
+	}
+
+	return r
 }
 
 func (ctx *LoggerContext) SetLevel(newLogLevel labstacklog.Lvl) {
@@ -316,5 +332,8 @@ func (ctxLogger *LoggerContextLogger) SetOutput(w io.Writer) {
 	}
 }
 func (ctx *LoggerContext) Release() {
+	if ctx.generator == nil {
+		return
+	}
 	ctx.generator.releaseContext(ctx)
 }

@@ -42,6 +42,18 @@ func newLoggerContextGenerator(opts Options) *loggerContextGenerator {
 		logger = GetDefaultLogger()
 	}
 
+	if opts.DebugLogLevelFraction == 0 {
+		opts.DebugLogLevelFraction = defaultContextLoggerSettings.debugLogLevelFraction
+	}
+
+	if opts.EnableStackTraceFraction == 0 {
+		opts.EnableStackTraceFraction = defaultContextLoggerSettings.enableStackTraceFraction
+	}
+
+	if opts.DefaultLogLevel == labstacklog.Lvl(0) {
+		opts.DefaultLogLevel = defaultContextLoggerSettings.defaultLogLevel
+	}
+
 	gen := &loggerContextGenerator{
 		contextPool: sync.Pool{
 			New: func() interface{} {
@@ -71,7 +83,13 @@ func (h *loggerContextGenerator) SetDebugLogLevelFraction(newDebugLogLevelFracti
 	h.debugLogLevelFraction = newDebugLogLevelFraction
 }
 
+func SetDefaultDebugLogLevelFraction(newExtraLoggingFraction float32) {
+	defaultContextLoggerSettings.debugLogLevelFraction = newExtraLoggingFraction
+}
+
 func SetDebugLogLevelFraction(newExtraLoggingFraction float32) {
+	SetDefaultDebugLogLevelFraction(newExtraLoggingFraction)
+
 	// The lock is prevent panics caused by modification of length "loggerContextGenerators.slice" from another goroutine
 	loggerContextGenerators.Lock()
 	for _, gen := range loggerContextGenerators.slice {
@@ -85,7 +103,13 @@ func (h *loggerContextGenerator) SetEnableStackTraceFraction(newEnableStackTrace
 	h.enableStackTraceFraction = newEnableStackTraceFraction
 }
 
+func SetDefaultEnableStackTraceFraction(newStackTraceFraction float32) {
+	defaultContextLoggerSettings.enableStackTraceFraction = newStackTraceFraction
+}
+
 func SetEnableStackTraceFraction(newStackTraceFraction float32) {
+	SetDefaultEnableStackTraceFraction(newStackTraceFraction)
+
 	// The lock is prevent panics caused by modification of length "loggerContextGenerators.slice" from another goroutine
 	loggerContextGenerators.Lock()
 	for _, gen := range loggerContextGenerators.slice {
@@ -99,7 +123,13 @@ func (h *loggerContextGenerator) SetDefaultLogLevel(newDefaultLogLevel labstackl
 	h.defaultLogLevel = newDefaultLogLevel
 }
 
+func SetDefaultDefaultLogLevel(newDefaultLogLevel labstacklog.Lvl) {
+	defaultContextLoggerSettings.defaultLogLevel = newDefaultLogLevel
+}
+
 func SetDefaultLogLevel(newDefaultLogLevel labstacklog.Lvl) {
+	SetDefaultDefaultLogLevel(newDefaultLogLevel)
+
 	// The lock is prevent panics caused by modification of length "loggerContextGenerators.slice" from another goroutine
 	loggerContextGenerators.Lock()
 	for _, gen := range loggerContextGenerators.slice {
