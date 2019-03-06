@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo"
 	echolog "github.com/labstack/echo/log"
@@ -19,6 +20,7 @@ type LoggerContextLogger struct {
 	logger              logrus.FieldLogger
 	LogLevel            labstacklog.Lvl
 	IsStackTraceEnabled bool
+	StartTime           time.Time
 }
 type contextLogger = LoggerContextLogger // To be able to do that as a private anonymous variable
 type ContextLogger = LoggerContextLogger // Just a shortcut
@@ -30,13 +32,14 @@ type LoggerContext struct {
 	generator *loggerContextGenerator
 }
 
-func (ctx *LoggerContext) init(generator *loggerContextGenerator, origCtx echo.Context, requestID string, logger logrus.FieldLogger, logLevel labstacklog.Lvl, isStackTraceEnabled bool) {
+func (ctx *LoggerContext) init(generator *loggerContextGenerator, origCtx echo.Context, requestID string, logger logrus.FieldLogger, logLevel labstacklog.Lvl, isStackTraceEnabled bool, startTime time.Time) {
 	ctx.generator = generator
 	ctx.echoContext = origCtx
 	ctx.requestID = requestID
 	ctx.logger = logger.WithField(`request_id`, requestID)
 	ctx.LogLevel = logLevel
 	ctx.IsStackTraceEnabled = isStackTraceEnabled
+	ctx.StartTime = startTime
 }
 
 func GetDefaultContextLogger() *LoggerContextLogger {
@@ -152,6 +155,7 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 	if ctxLogger.IsStackTraceEnabled {
 		logger.WithField(`stack_trace`, stack)
 	}
+	logger.WithField(`request_time`, time.Since(ctxLogger.StartTime))
 	return logger
 }
 

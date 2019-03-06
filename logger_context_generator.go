@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/labstack/echo"
 	labstacklog "github.com/labstack/gommon/log"
@@ -254,6 +255,7 @@ func (h *loggerContextGenerator) AcquireContext(c echo.Context) *LoggerContext {
 		h.defaultLogger,
 		logLevel,
 		isStackTraceEnabled,
+		time.Now(),
 	)
 
 	return newContext
