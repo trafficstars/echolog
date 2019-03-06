@@ -80,16 +80,16 @@ func SetDebugLogLevelFraction(newExtraLoggingFraction float32) {
 	loggerContextGenerators.Unlock()
 }
 
-func (h *loggerContextGenerator) SetStackTraceFraction(newEnableStackTraceFraction float32) {
+func (h *loggerContextGenerator) SetEnableStackTraceFraction(newEnableStackTraceFraction float32) {
 	// We don't do any atomicity here because it's not important. This method is supposed to be called rarely.
 	h.enableStackTraceFraction = newEnableStackTraceFraction
 }
 
-func SetStackTraceFraction(newStackTraceFraction float32) {
+func SetEnableStackTraceFraction(newStackTraceFraction float32) {
 	// The lock is prevent panics caused by modification of length "loggerContextGenerators.slice" from another goroutine
 	loggerContextGenerators.Lock()
 	for _, gen := range loggerContextGenerators.slice {
-		gen.SetStackTraceFraction(newStackTraceFraction)
+		gen.SetEnableStackTraceFraction(newStackTraceFraction)
 	}
 	loggerContextGenerators.Unlock()
 }
