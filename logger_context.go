@@ -153,9 +153,9 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 	}
 
 	if ctxLogger.IsStackTraceEnabled {
-		logger.WithField(`stack_trace`, stack)
+		logger = logger.WithField(`stack_trace`, stack)
 	}
-	logger.WithField(`request_time`, time.Since(ctxLogger.StartTime))
+	logger = logger.WithField(`request_time`, time.Since(ctxLogger.StartTime))
 	return logger
 }
 
