@@ -20,7 +20,8 @@ type LoggerContextLogger struct {
 	LogLevel            labstacklog.Lvl
 	IsStackTraceEnabled bool
 }
-type contextLogger = LoggerContextLogger
+type contextLogger = LoggerContextLogger // To be able to do that as a private anonymous variable
+type ContextLogger = LoggerContextLogger // Just a shortcut
 
 type LoggerContext struct {
 	echoContext
@@ -122,6 +123,8 @@ func (ctxLogger LoggerContextLogger) WithField(key string, value interface{}) *L
 	ctxLogger.logger = ctxLogger.logger.WithField(key, value)
 	return &ctxLogger
 }
+
+type Fields = logrus.Fields
 
 func (ctxLogger LoggerContextLogger) WithFields(fields logrus.Fields) *LoggerContextLogger {
 	ctxLogger.logger = ctxLogger.logger.WithFields(fields)
