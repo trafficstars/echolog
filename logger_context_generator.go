@@ -32,14 +32,14 @@ type loggerContextGeneratorsT struct {
 
 var loggerContextGenerators = loggerContextGeneratorsT{}
 
-func newDefaultLogger() logrus.FieldLogger {
+func GetDefaultLogger() logrus.FieldLogger {
 	return logrus.StandardLogger()
 }
 
 func newLoggerContextGenerator(opts Options) *loggerContextGenerator {
 	logger := opts.Logger
 	if logger == nil {
-		logger = newDefaultLogger()
+		logger = GetDefaultLogger()
 	}
 
 	gen := &loggerContextGenerator{
