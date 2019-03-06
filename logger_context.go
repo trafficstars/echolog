@@ -138,7 +138,7 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 	stack := string(debug.Stack())
 
 	stackLines := strings.Split(stack, "\n")
-	for _, line := range stackLines[1:] {
+	for _, line := range stackLines[3:] {
 		if line[0] != '\t' {
 			continue
 		}
