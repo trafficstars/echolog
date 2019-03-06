@@ -21,6 +21,7 @@ type loggerContextGenerator struct {
 	contextPool                    sync.Pool // a pool of *loggerContext
 	generateRequestIDReusablesPool sync.Pool // a pool of *generateRequestIDReusables
 	defaultLogger                  logrus.FieldLogger
+	defaultLogLevel                labstacklog.Lvl
 }
 
 // The registry of all "loggerContextGenerator"'s.
@@ -54,6 +55,7 @@ func newLoggerContextGenerator(opts Options) *loggerContextGenerator {
 		},
 		debugLogLevelFraction:    opts.DebugLogLevelFraction,
 		enableStackTraceFraction: opts.EnableStackTraceFraction,
+		defaultLogLevel:          opts.DefaultLogLevel,
 		defaultLogger:            logger,
 	}
 
@@ -88,6 +90,20 @@ func SetStackTraceFraction(newStackTraceFraction float32) {
 	loggerContextGenerators.Lock()
 	for _, gen := range loggerContextGenerators.slice {
 		gen.SetStackTraceFraction(newStackTraceFraction)
+	}
+	loggerContextGenerators.Unlock()
+}
+
+func (h *loggerContextGenerator) SetDefaultLogLevel(newDefaultLogLevel labstacklog.Lvl) {
+	// We don't do any atomicity here because it's not important. This method is supposed to be called rarely.
+	h.defaultLogLevel = newDefaultLogLevel
+}
+
+func SetDefaultLogLevel(newDefaultLogLevel labstacklog.Lvl) {
+	// The lock is prevent panics caused by modification of length "loggerContextGenerators.slice" from another goroutine
+	loggerContextGenerators.Lock()
+	for _, gen := range loggerContextGenerators.slice {
+		gen.SetDefaultLogLevel(newDefaultLogLevel)
 	}
 	loggerContextGenerators.Unlock()
 }
@@ -175,7 +191,7 @@ func (h *loggerContextGenerator) AcquireContext(c echo.Context) *LoggerContext {
 		}
 	}
 
-	logLevel := labstacklog.ERROR // The default log level
+	logLevel := h.defaultLogLevel
 	if isDebugLogLevelEnabled {
 		logLevel = labstacklog.DEBUG
 	}
