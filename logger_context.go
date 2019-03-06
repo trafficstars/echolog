@@ -200,85 +200,85 @@ func (ctxLogger *LoggerContextLogger) Debug(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.DEBUG {
 		return
 	}
-	ctxLogger.getPreparedLogger().Debug(args...)
+	ctxLogger.getPreparedLogger().Debug(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Info(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
-	ctxLogger.getPreparedLogger().Info(args...)
+	ctxLogger.getPreparedLogger().Info(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Print(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
-	ctxLogger.getPreparedLogger().Print(args...)
+	ctxLogger.getPreparedLogger().Print(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Warn(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
-	ctxLogger.getPreparedLogger().Warn(args...)
+	ctxLogger.getPreparedLogger().Warn(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Warning(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
-	ctxLogger.getPreparedLogger().Warning(args...)
+	ctxLogger.getPreparedLogger().Warning(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Error(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.ERROR {
 		return
 	}
-	ctxLogger.getPreparedLogger().Error(args...)
+	ctxLogger.getPreparedLogger().Error(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Fatal(args ...interface{}) {
-	ctxLogger.getPreparedLogger().Fatal(args...)
+	ctxLogger.getPreparedLogger().Fatal(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Panic(args ...interface{}) {
-	ctxLogger.getPreparedLogger().Panic(args...)
+	ctxLogger.getPreparedLogger().Panic(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Debugln(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.DEBUG {
 		return
 	}
-	ctxLogger.getPreparedLogger().Debugln(args...)
+	ctxLogger.getPreparedLogger().Debugln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Infoln(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
-	ctxLogger.getPreparedLogger().Infoln(args...)
+	ctxLogger.getPreparedLogger().Infoln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Println(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
-	ctxLogger.getPreparedLogger().Println(args...)
+	ctxLogger.getPreparedLogger().Println(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Warnln(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
-	ctxLogger.getPreparedLogger().Warnln(args...)
+	ctxLogger.getPreparedLogger().Warnln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Warningln(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
-	ctxLogger.getPreparedLogger().Warningln(args...)
+	ctxLogger.getPreparedLogger().Warningln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Errorln(args ...interface{}) {
 	if ctxLogger.LogLevel > labstacklog.ERROR {
 		return
 	}
-	ctxLogger.getPreparedLogger().Errorln(args...)
+	ctxLogger.getPreparedLogger().Errorln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Fatalln(args ...interface{}) {
-	ctxLogger.getPreparedLogger().Fatalln(args...)
+	ctxLogger.getPreparedLogger().Fatalln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Panicln(args ...interface{}) {
-	ctxLogger.getPreparedLogger().Panicln(args...)
+	ctxLogger.getPreparedLogger().Panicln(addSpacesToArgs(args)...)
 }
 
 func (ctxLogger *LoggerContextLogger) Debugj(j labstacklog.JSON) {
@@ -339,4 +339,18 @@ func (ctx *LoggerContext) Release() {
 		return
 	}
 	ctx.generator.releaseContext(ctx)
+}
+
+func addSpacesToArgs(args []interface{}) []interface{} {
+	if len(args) == 0 {
+		return args
+	}
+	r := make([]interface{}, 0, len(args)*2-1)
+	r = append(r, args[0])
+	for _, arg := range args[1:] {
+		r = append(r, ` `)
+		r = append(r, arg)
+	}
+
+	return r
 }
