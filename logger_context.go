@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"runtime/debug"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/labstack/echo"
@@ -147,6 +148,18 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 
 	logger := ctxLogger.logger
 	stack := string(debug.Stack())
+
+	// TODO: remove this dirty hack
+	// Without this hack logrus filters logs according to his log levels
+	switch l := logger.(type) {
+	case *logrus.Entry:
+		atomic.StoreUint32((*uint32)(&l.Level), uint32(logrus.TraceLevel))
+		l.Logger.SetLevel(logrus.TraceLevel)
+	case *logrus.Logger:
+		l.SetLevel(logrus.TraceLevel)
+	default:
+		logger.Error(`Cannot change log-level of logrus logger. Unknown type: %T`, l)
+	}
 
 	stackLines := strings.Split(stack, "\n")
 	for _, line := range stackLines[3:] {
