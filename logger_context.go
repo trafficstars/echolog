@@ -32,6 +32,14 @@ type LoggerContext struct {
 	generator *loggerContextGenerator
 }
 
+var (
+	startTime time.Time
+)
+
+func init() {
+	startTime = time.Now()
+}
+
 func (ctx *LoggerContext) init(generator *loggerContextGenerator, origCtx echo.Context, requestID string, logger logrus.FieldLogger, logLevel labstacklog.Lvl, isStackTraceEnabled bool, startTime time.Time) {
 	ctx.generator = generator
 	ctx.echoContext = origCtx
@@ -155,7 +163,10 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 	if ctxLogger.IsStackTraceEnabled {
 		logger = logger.WithField(`stack_trace`, stack)
 	}
-	logger = logger.WithField(`request_time`, time.Since(ctxLogger.StartTime))
+	if !ctxLogger.StartTime.IsZero() {
+		logger = logger.WithField(`request_time`, time.Since(ctxLogger.StartTime))
+	}
+	logger = logger.WithField(`uptime`, time.Since(startTime))
 	return logger
 }
 
