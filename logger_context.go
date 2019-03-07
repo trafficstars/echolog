@@ -171,37 +171,37 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 }
 
 func (ctxLogger *LoggerContextLogger) Debugf(format string, args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.DEBUG {
+	if ctxLogger.LogLevel > labstacklog.DEBUG {
 		return
 	}
 	ctxLogger.getPreparedLogger().Debugf(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Infof(format string, args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.INFO {
+	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
 	ctxLogger.getPreparedLogger().Infof(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Printf(format string, args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.INFO {
+	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
 	ctxLogger.getPreparedLogger().Printf(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Warnf(format string, args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.WARN {
+	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
 	ctxLogger.getPreparedLogger().Warnf(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Warningf(format string, args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.WARN {
+	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
 	ctxLogger.getPreparedLogger().Warningf(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Errorf(format string, args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.ERROR {
+	if ctxLogger.LogLevel > labstacklog.ERROR {
 		return
 	}
 	ctxLogger.getPreparedLogger().Errorf(format, args...)
@@ -213,37 +213,37 @@ func (ctxLogger *LoggerContextLogger) Panicf(format string, args ...interface{})
 	ctxLogger.getPreparedLogger().Panicf(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Debug(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.DEBUG {
+	if ctxLogger.LogLevel > labstacklog.DEBUG {
 		return
 	}
 	ctxLogger.getPreparedLogger().Debug(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Info(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.INFO {
+	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
 	ctxLogger.getPreparedLogger().Info(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Print(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.INFO {
+	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
 	ctxLogger.getPreparedLogger().Print(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Warn(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.WARN {
+	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
 	ctxLogger.getPreparedLogger().Warn(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Warning(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.WARN {
+	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
 	ctxLogger.getPreparedLogger().Warning(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Error(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.ERROR {
+	if ctxLogger.LogLevel > labstacklog.ERROR {
 		return
 	}
 	ctxLogger.getPreparedLogger().Error(addSpacesToArgs(args)...)
@@ -255,37 +255,37 @@ func (ctxLogger *LoggerContextLogger) Panic(args ...interface{}) {
 	ctxLogger.getPreparedLogger().Panic(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Debugln(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.DEBUG {
+	if ctxLogger.LogLevel > labstacklog.DEBUG {
 		return
 	}
 	ctxLogger.getPreparedLogger().Debugln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Infoln(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.INFO {
+	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
 	ctxLogger.getPreparedLogger().Infoln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Println(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.INFO {
+	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
 	ctxLogger.getPreparedLogger().Println(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Warnln(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.WARN {
+	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
 	ctxLogger.getPreparedLogger().Warnln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Warningln(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.WARN {
+	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
 	ctxLogger.getPreparedLogger().Warningln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Errorln(args ...interface{}) {
-	if ctxLogger.LogLevel >= labstacklog.ERROR {
+	if ctxLogger.LogLevel > labstacklog.ERROR {
 		return
 	}
 	ctxLogger.getPreparedLogger().Errorln(addSpacesToArgs(args)...)
@@ -298,37 +298,37 @@ func (ctxLogger *LoggerContextLogger) Panicln(args ...interface{}) {
 }
 
 func (ctxLogger *LoggerContextLogger) Debugj(j labstacklog.JSON) {
-	if ctxLogger.LogLevel >= labstacklog.DEBUG {
+	if ctxLogger.LogLevel > labstacklog.DEBUG {
 		return
 	}
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Debug(`d`)
 }
 func (ctxLogger *LoggerContextLogger) Infoj(j labstacklog.JSON) {
-	if ctxLogger.LogLevel >= labstacklog.INFO {
+	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Info(`i`)
 }
 func (ctxLogger *LoggerContextLogger) Printj(j labstacklog.JSON) {
-	if ctxLogger.LogLevel >= labstacklog.INFO {
+	if ctxLogger.LogLevel > labstacklog.INFO {
 		return
 	}
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Print(`p`)
 }
 func (ctxLogger *LoggerContextLogger) Warnj(j labstacklog.JSON) {
-	if ctxLogger.LogLevel >= labstacklog.WARN {
+	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Warn(`w`)
 }
 func (ctxLogger *LoggerContextLogger) Warningj(j labstacklog.JSON) {
-	if ctxLogger.LogLevel >= labstacklog.WARN {
+	if ctxLogger.LogLevel > labstacklog.WARN {
 		return
 	}
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Warning(`w`)
 }
 func (ctxLogger *LoggerContextLogger) Errorj(j labstacklog.JSON) {
-	if ctxLogger.LogLevel >= labstacklog.ERROR {
+	if ctxLogger.LogLevel > labstacklog.ERROR {
 		return
 	}
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Error(`e`)
