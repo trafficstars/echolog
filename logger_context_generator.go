@@ -33,14 +33,35 @@ type loggerContextGeneratorsT struct {
 
 var loggerContextGenerators = loggerContextGeneratorsT{}
 
+func fixLoggerLoggingLevel(logger logrus.FieldLogger) logrus.FieldLogger {
+	var entry *logrus.Entry
+
+	// TODO: remove this dirty hack
+	// Without this hack logrus filters logs according to his log levels
+	switch l := logger.(type) {
+	case *logrus.Entry:
+		entry = logrus.NewEntry(l.Logger).WithFields(l.Data)
+	case *logrus.Logger:
+		entry = logrus.NewEntry(l)
+	default:
+		logger.Error(`Unknown type: %T`, l)
+		return logger
+	}
+
+	entry.OverrideLoggerLevel = logrus.TraceLevel // Log level filtering is done in the middleware. We should disable it in logrus, so we set "TraceLevel" (maximum logs)
+	return entry
+}
+
 func GetDefaultLogger() logrus.FieldLogger {
-	return logrus.StandardLogger()
+	return fixLoggerLoggingLevel(logrus.StandardLogger())
 }
 
 func newLoggerContextGenerator(opts Options) *loggerContextGenerator {
 	logger := opts.Logger
 	if logger == nil {
 		logger = GetDefaultLogger()
+	} else {
+		logger = fixLoggerLoggingLevel(logger)
 	}
 
 	if opts.DebugLogLevelFraction == 0 {

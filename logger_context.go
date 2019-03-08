@@ -3,9 +3,9 @@ package echolog
 import (
 	"io"
 	"math/rand"
+	"sync/atomic"
 	"runtime/debug"
 	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/labstack/echo"
@@ -149,18 +149,6 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 	logger := ctxLogger.logger
 	stack := string(debug.Stack())
 
-	// TODO: remove this dirty hack
-	// Without this hack logrus filters logs according to his log levels
-	switch l := logger.(type) {
-	case *logrus.Entry:
-		atomic.StoreUint32((*uint32)(&l.Level), uint32(logrus.TraceLevel))
-		l.Logger.SetLevel(logrus.TraceLevel)
-	case *logrus.Logger:
-		l.SetLevel(logrus.TraceLevel)
-	default:
-		logger.Error(`Cannot change log-level of logrus logger. Unknown type: %T`, l)
-	}
-
 	stackLines := strings.Split(stack, "\n")
 	for _, line := range stackLines[3:] {
 		if line[0] != '\t' {
@@ -180,6 +168,7 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 		logger = logger.WithField(`request_time`, time.Since(ctxLogger.StartTime))
 	}
 	logger = logger.WithField(`uptime`, time.Since(startTime))
+	atomic.StoreUint32((*uint32)(&logger.(*logrus.Entry).OverrideLoggerLevel), uint32(logrus.TraceLevel))
 	return logger
 }
 
