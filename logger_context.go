@@ -168,6 +168,8 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 		logger = logger.WithField(`request_time`, time.Since(ctxLogger.StartTime))
 	}
 	logger = logger.WithField(`uptime`, time.Since(startTime))
+
+	// TODO: remove this hack:
 	atomic.StoreUint32((*uint32)(&logger.(*logrus.Entry).OverrideLoggerLevel), uint32(logrus.TraceLevel))
 	return logger
 }
