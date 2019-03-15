@@ -3,9 +3,9 @@ package echolog
 import (
 	"io"
 	"math/rand"
-	"sync/atomic"
 	"runtime/debug"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/labstack/echo"
@@ -138,9 +138,16 @@ func (ctxLogger LoggerContextLogger) WithField(key string, value interface{}) *L
 
 type Fields = logrus.Fields
 
+// WithFields create a new scope with the fields
 func (ctxLogger LoggerContextLogger) WithFields(fields logrus.Fields) *LoggerContextLogger {
+	// ctxLogger is not a pointer, so it's a copy here:
+	return ctxLogger.SetFields(fields)
+}
+
+// SetFields sets the fields within the current scope
+func (ctxLogger *LoggerContextLogger) SetFields(fields logrus.Fields) *LoggerContextLogger {
 	ctxLogger.logger = ctxLogger.logger.WithFields(fields)
-	return &ctxLogger
+	return ctxLogger
 }
 
 func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
