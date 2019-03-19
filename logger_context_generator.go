@@ -194,6 +194,9 @@ func (h *loggerContextGenerator) getRequestID(c echo.Context) string {
 		requestID = header.Get(`X-Log-Request-Id`) // A request ID that we can manually pass through headers if required
 	}
 	if requestID == `` {
+		requestID = header.Get(`X-Request-Id`) // A request ID that we can manually pass through headers if required
+	}
+	if requestID == `` {
 		requestID = header.Get(`CF-RAY`) // CloudFlare's request ID
 	}
 	if requestID == `` {
