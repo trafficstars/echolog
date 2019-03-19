@@ -122,6 +122,10 @@ func (ctx *LoggerContext) GetRequestID() string {
 	return ctx.requestID
 }
 
+func (ctx *LoggerContext) GetLogLevel() labstacklog.Lvl {
+	return ctx.LogLevel
+}
+
 func (ctxLogger *LoggerContextLogger) SetLevel(newLogLevel labstacklog.Lvl) {
 	ctxLogger.LogLevel = newLogLevel
 }
@@ -179,6 +183,13 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 	// TODO: remove this hack:
 	atomic.StoreUint32((*uint32)(&logger.(*logrus.Entry).OverrideLoggerLevel), uint32(logrus.TraceLevel))
 	return logger
+}
+
+func (ctxLogger *LoggerContextLogger) IfDebug(fn func()) {
+	if ctxLogger.LogLevel > labstacklog.DEBUG {
+		return
+	}
+	fn()
 }
 
 func (ctxLogger *LoggerContextLogger) Debugf(format string, args ...interface{}) {
