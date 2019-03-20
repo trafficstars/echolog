@@ -46,6 +46,8 @@ func Middleware(opts Options) echo.MiddlewareFunc {
 				body, headers := getBodyAndHeadersFromRequest(echoContext.Request())
 
 				c.WithFields(logrus.Fields{
+					`url`:          echoContext.Request().URL().Path(),
+					`query_params`: echoContext.Request().URL().QueryParams(),
 					`what`:         `http_request`,
 					`http_headers`: headers,
 				}).Debug(body)
