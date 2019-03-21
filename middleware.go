@@ -68,6 +68,7 @@ func Middleware(opts Options) echo.MiddlewareFunc {
 				c.WithFields(logrus.Fields{
 					`what`:         `http_response`,
 					`http_headers`: getHeaders(echoContext.Response().Header()),
+					`http_code`:    echoContext.Response().Status(),
 				}).Debug(responseBodyCopy.String())
 			})
 
