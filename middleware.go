@@ -66,11 +66,16 @@ func Middleware(opts Options) echo.MiddlewareFunc {
 				// We call IfDebug to do not process unnecessary heavy routines if it's not the case when we will really log it
 
 				c.WithFields(logrus.Fields{
+					`method`:       echoContext.Request().Method(),
+					`url`:          echoContext.Request().URL().Path(),
+					`query_params`: echoContext.Request().URL().QueryParams(),
 					`what`:         `http_response`,
 					`http_headers`: getHeaders(echoContext.Response().Header()),
 					`http_code`:    echoContext.Response().Status(),
 				}).Debug(responseBodyCopy.String())
 			})
+
+			c.Response().Header().Set(`X-Request-Id`, c.GetRequestID())
 
 			// Release the context to reuse it in future (this way is faster than always generate a new object and throw it to the GC)
 			c.Release()
