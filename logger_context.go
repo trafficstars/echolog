@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"runtime/debug"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/labstack/echo"
@@ -12,6 +13,9 @@ import (
 	labstacklog "github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
 )
+
+// CtxShouldLogExchange is used as context key to enforce request/response logging
+const CtxShouldLogExchange = "ctx_write_exchange_log"
 
 type echoContext = echo.Context
 
@@ -40,7 +44,15 @@ func init() {
 	startTime = time.Now()
 }
 
-func (ctx *LoggerContext) init(generator *loggerContextGenerator, origCtx echo.Context, requestID string, logger logrus.FieldLogger, logLevel labstacklog.Lvl, isStackTraceEnabled bool, startTime time.Time) {
+func (ctx *LoggerContext) init(
+	generator *loggerContextGenerator,
+	origCtx echo.Context,
+	requestID string,
+	logger logrus.FieldLogger,
+	logLevel labstacklog.Lvl,
+	isStackTraceEnabled bool,
+	startTime time.Time,
+) {
 	ctx.generator = generator
 	ctx.echoContext = origCtx
 	ctx.requestID = requestID
@@ -121,6 +133,35 @@ func (ctx *LoggerContext) GetRequestID() string {
 	return ctx.requestID
 }
 
+func (ctx *LoggerContext) GetLogLevel() labstacklog.Lvl {
+	return ctx.LogLevel
+}
+
+// IfShouldWriteExchangeLog - executes function if we should
+// write request/response log during this context
+func (ctx *LoggerContext) IfShouldWriteExchangeLog(fn func()) {
+
+	// value in context have highest priority
+	var shouldWrite bool
+	ctxValue := ctx.Get(CtxShouldLogExchange)
+	if ctxValue != nil {
+		if shouldWrite, ok := ctxValue.(bool); ok && !shouldWrite {
+			return
+		}
+	}
+
+	if shouldWrite || ctx.LogLevel == labstacklog.DEBUG {
+		fn()
+	}
+}
+
+func (ctxLogger *LoggerContextLogger) IfDebug(fn func()) {
+	if ctxLogger.LogLevel > labstacklog.DEBUG {
+		return
+	}
+	fn()
+}
+
 func (ctxLogger *LoggerContextLogger) SetLevel(newLogLevel labstacklog.Lvl) {
 	ctxLogger.LogLevel = newLogLevel
 }
@@ -137,9 +178,16 @@ func (ctxLogger LoggerContextLogger) WithField(key string, value interface{}) *L
 
 type Fields = logrus.Fields
 
+// WithFields create a new scope with the fields
 func (ctxLogger LoggerContextLogger) WithFields(fields logrus.Fields) *LoggerContextLogger {
+	// ctxLogger is not a pointer, so it's a copy here:
+	return ctxLogger.SetFields(fields)
+}
+
+// SetFields sets the fields within the current scope
+func (ctxLogger *LoggerContextLogger) SetFields(fields logrus.Fields) *LoggerContextLogger {
 	ctxLogger.logger = ctxLogger.logger.WithFields(fields)
-	return &ctxLogger
+	return ctxLogger
 }
 
 func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
@@ -167,6 +215,14 @@ func (ctxLogger *LoggerContextLogger) getPreparedLogger() logrus.FieldLogger {
 		logger = logger.WithField(`request_time`, time.Since(ctxLogger.StartTime))
 	}
 	logger = logger.WithField(`uptime`, time.Since(startTime))
+
+	// Remember which log level was used by environment when we sent it
+	// Useful to find requests which enforced debug level
+	logger = logger.WithField(`ctx_logger_level`, ctxLogger.LogLevel)
+
+	// TODO: remove this hack:
+	atomic.StoreUint32((*uint32)(&logger.(*logrus.Entry).OverrideLoggerLevel), uint32(logrus.TraceLevel))
+
 	return logger
 }
 
@@ -207,9 +263,11 @@ func (ctxLogger *LoggerContextLogger) Errorf(format string, args ...interface{})
 	ctxLogger.getPreparedLogger().Errorf(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Fatalf(format string, args ...interface{}) {
+	ctxLogger.IsStackTraceEnabled = true
 	ctxLogger.getPreparedLogger().Fatalf(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Panicf(format string, args ...interface{}) {
+	ctxLogger.IsStackTraceEnabled = true
 	ctxLogger.getPreparedLogger().Panicf(format, args...)
 }
 func (ctxLogger *LoggerContextLogger) Debug(args ...interface{}) {
@@ -249,9 +307,11 @@ func (ctxLogger *LoggerContextLogger) Error(args ...interface{}) {
 	ctxLogger.getPreparedLogger().Error(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Fatal(args ...interface{}) {
+	ctxLogger.IsStackTraceEnabled = true
 	ctxLogger.getPreparedLogger().Fatal(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Panic(args ...interface{}) {
+	ctxLogger.IsStackTraceEnabled = true
 	ctxLogger.getPreparedLogger().Panic(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Debugln(args ...interface{}) {
@@ -291,9 +351,11 @@ func (ctxLogger *LoggerContextLogger) Errorln(args ...interface{}) {
 	ctxLogger.getPreparedLogger().Errorln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Fatalln(args ...interface{}) {
+	ctxLogger.IsStackTraceEnabled = true
 	ctxLogger.getPreparedLogger().Fatalln(addSpacesToArgs(args)...)
 }
 func (ctxLogger *LoggerContextLogger) Panicln(args ...interface{}) {
+	ctxLogger.IsStackTraceEnabled = true
 	ctxLogger.getPreparedLogger().Panicln(addSpacesToArgs(args)...)
 }
 
@@ -334,9 +396,11 @@ func (ctxLogger *LoggerContextLogger) Errorj(j labstacklog.JSON) {
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Error(`e`)
 }
 func (ctxLogger *LoggerContextLogger) Fatalj(j labstacklog.JSON) {
+	ctxLogger.IsStackTraceEnabled = true
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Fatal(`f`)
 }
 func (ctxLogger *LoggerContextLogger) Panicj(j labstacklog.JSON) {
+	ctxLogger.IsStackTraceEnabled = true
 	ctxLogger.getPreparedLogger().WithFields(logrus.Fields(j)).Panic(`p`)
 }
 func (ctxLogger *LoggerContextLogger) SetOutput(w io.Writer) {

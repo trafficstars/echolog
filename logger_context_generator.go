@@ -33,14 +33,39 @@ type loggerContextGeneratorsT struct {
 
 var loggerContextGenerators = loggerContextGeneratorsT{}
 
+func fixLoggerLoggingLevel(logger logrus.FieldLogger) logrus.FieldLogger {
+	var entry *logrus.Entry
+
+	// TODO: remove this dirty hack
+	// Without this hack logrus filters logs according to his log levels
+	switch l := logger.(type) {
+	case *logrus.Entry:
+		entry = logrus.NewEntry(l.Logger).WithFields(l.Data)
+	case *logrus.Logger:
+		entry = logrus.NewEntry(l)
+	default:
+		logger.Error(`Unknown type: %T`, l)
+		return logger
+	}
+
+	entry.OverrideLoggerLevel = logrus.TraceLevel // Log level filtering is done in the middleware. We should disable it in logrus, so we set "TraceLevel" (maximum logs)
+	return entry
+}
+
 func GetDefaultLogger() logrus.FieldLogger {
-	return logrus.StandardLogger()
+	return fixLoggerLoggingLevel(logrus.StandardLogger())
 }
 
 func newLoggerContextGenerator(opts Options) *loggerContextGenerator {
 	logger := opts.Logger
 	if logger == nil {
 		logger = GetDefaultLogger()
+	} else {
+		logger = fixLoggerLoggingLevel(logger)
+	}
+
+	if opts.DefaultLogLevel == labstacklog.Lvl(0) {
+		opts.DefaultLogLevel = defaultContextLoggerSettings.defaultLogLevel
 	}
 
 	if opts.DebugLogLevelFraction == 0 {
@@ -49,10 +74,6 @@ func newLoggerContextGenerator(opts Options) *loggerContextGenerator {
 
 	if opts.EnableStackTraceFraction == 0 {
 		opts.EnableStackTraceFraction = defaultContextLoggerSettings.enableStackTraceFraction
-	}
-
-	if opts.DefaultLogLevel == labstacklog.Lvl(0) {
-		opts.DefaultLogLevel = defaultContextLoggerSettings.defaultLogLevel
 	}
 
 	gen := &loggerContextGenerator{
@@ -173,6 +194,9 @@ func (h *loggerContextGenerator) getRequestID(c echo.Context) string {
 		requestID = header.Get(`X-Log-Request-Id`) // A request ID that we can manually pass through headers if required
 	}
 	if requestID == `` {
+		requestID = header.Get(`X-Request-Id`) // A request ID that we can manually pass through headers if required
+	}
+	if requestID == `` {
 		requestID = header.Get(`CF-RAY`) // CloudFlare's request ID
 	}
 	if requestID == `` {
@@ -202,8 +226,10 @@ func TryParseLogLevel(s string, defaultLogLevel labstacklog.Lvl) labstacklog.Lvl
 }
 
 func (h *loggerContextGenerator) AcquireContext(c echo.Context) *LoggerContext {
-	// Will we send all the information related to the request?
-	// We will send it if any of this conditions are satisfied:
+
+	var isDebugLogLevelEnabled bool
+
+	// We will force debug level if any of this conditions are satisfied:
 	// * rand.Float64() < h.debugLogLevelFraction
 	// * There's a HTTP header (in the request): X-Log-Extra: true
 	// * There's a HTTP header (in the request): X-Log-Level: debug
@@ -213,7 +239,8 @@ func (h *loggerContextGenerator) AcquireContext(c echo.Context) *LoggerContext {
 	header := c.Request().Header()
 	params := c.QueryParams()
 
-	isDebugLogLevelEnabled := rand.Float32() < h.debugLogLevelFraction ||
+	// Setup log level
+	isDebugLogLevelEnabled = rand.Float32() < h.debugLogLevelFraction ||
 		header.Get(`X-Log-Extra`) == `true`
 
 	if !isDebugLogLevelEnabled {
@@ -236,7 +263,6 @@ func (h *loggerContextGenerator) AcquireContext(c echo.Context) *LoggerContext {
 	}
 
 	// Will we send stackTraces (related to the request)?
-
 	isStackTraceEnabled := rand.Float32() < h.enableStackTraceFraction ||
 		header.Get(`X-Log-Stack-Traces`) == `true`
 
@@ -246,8 +272,7 @@ func (h *loggerContextGenerator) AcquireContext(c echo.Context) *LoggerContext {
 		}
 	}
 
-	// The loggable context
-
+	// Assemble context for current request
 	newContext := h.contextPool.Get().(*LoggerContext)
 	newContext.init(h,
 		c,
