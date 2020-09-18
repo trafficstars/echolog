@@ -48,7 +48,7 @@ func fixLoggerLoggingLevel(logger logrus.FieldLogger) logrus.FieldLogger {
 		return logger
 	}
 
-	entry.OverrideLoggerLevel = logrus.TraceLevel // Log level filtering is done in the middleware. We should disable it in logrus, so we set "TraceLevel" (maximum logs)
+	entry.Level = logrus.TraceLevel // Log level filtering is done in the middleware. We should disable it in logrus, so we set "TraceLevel" (maximum logs)
 	return entry
 }
 
