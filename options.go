@@ -6,9 +6,9 @@ import (
 )
 
 type Options struct {
-	IsRTB bool
-
-	DebugLogLevelFraction    float32 // A fraction of traffic (requests) that should be logged on all levels (trace, debug, info, ...), not only error and higher
+	Disable                  bool    // Disable request / response logging
+	CacheLogs                bool    // Save session logs in buffer, can be retrieved with .Cache()
+	DebugLogLevelFraction    float32 // A fraction of traffic that should be logged on all levels
 	EnableStackTraceFraction float32 // A fraction of requests, which will be logged with attached stack traces.
 	DefaultLogLevel          labstacklog.Lvl
 	Logger                   logrus.FieldLogger
