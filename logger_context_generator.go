@@ -17,12 +17,13 @@ const (
 )
 
 type loggerContextGenerator struct {
-	debugLogLevelFraction          float32
-	enableStackTraceFraction       float32
-	contextPool                    sync.Pool // a pool of *loggerContext
-	generateRequestIDReusablesPool sync.Pool // a pool of *generateRequestIDReusables
-	defaultLogger                  logrus.FieldLogger
-	defaultLogLevel                labstacklog.Lvl
+	debugLogLevelFraction    float32
+	enableStackTraceFraction float32
+	contextPool              sync.Pool // a pool of *loggerContext
+	requestIDGenPool         sync.Pool // a pool of *generateRequestIDReusables
+	defaultLogger            logrus.FieldLogger
+	defaultLogLevel          labstacklog.Lvl
+	cacheLogs                bool
 }
 
 // The registry of all "loggerContextGenerator"'s.
@@ -82,7 +83,7 @@ func newLoggerContextGenerator(opts Options) *loggerContextGenerator {
 				return &LoggerContext{}
 			},
 		},
-		generateRequestIDReusablesPool: sync.Pool{
+		requestIDGenPool: sync.Pool{
 			New: func() interface{} {
 				return &generateRequestIDReusables{}
 			},
@@ -91,6 +92,7 @@ func newLoggerContextGenerator(opts Options) *loggerContextGenerator {
 		enableStackTraceFraction: opts.EnableStackTraceFraction,
 		defaultLogLevel:          opts.DefaultLogLevel,
 		defaultLogger:            logger,
+		cacheLogs:                opts.CacheLogs,
 	}
 
 	loggerContextGenerators.Lock()
@@ -166,19 +168,19 @@ type generateRequestIDReusables struct {
 }
 
 func (h *loggerContextGenerator) generateRandomRequestID() string {
-	reusables := h.generateRequestIDReusablesPool.Get().(*generateRequestIDReusables)
+	reusables := h.requestIDGenPool.Get().(*generateRequestIDReusables)
 
 	_, err := rand.Read(reusables.randomBuffer[:])
 	if err != nil {
 		// TODO: additionally send an error through the logger
-		h.generateRequestIDReusablesPool.Put(reusables)
+		h.requestIDGenPool.Put(reusables)
 		return `cannot_generate_case0: ` + err.Error()
 	}
 	hex.Encode(reusables.hexBuffer[:], reusables.randomBuffer[:])
 
 	r := string(reusables.hexBuffer[:])
 
-	h.generateRequestIDReusablesPool.Put(reusables)
+	h.requestIDGenPool.Put(reusables)
 	return r
 }
 
@@ -274,12 +276,13 @@ func (h *loggerContextGenerator) AcquireContext(c echo.Context) *LoggerContext {
 
 	// Assemble context for current request
 	newContext := h.contextPool.Get().(*LoggerContext)
-	newContext.init(h,
-		c,
+	newContext.init(
+		h, c,
 		h.getRequestID(c),
 		h.defaultLogger,
 		logLevel,
 		isStackTraceEnabled,
+		h.cacheLogs,
 		time.Now(),
 	)
 
