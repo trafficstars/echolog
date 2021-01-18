@@ -3,10 +3,10 @@ package echolog
 import (
 	"bytes"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine"
 	labstacklog "github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
+	"github.com/trafficstars/echo"
+	"github.com/trafficstars/echo/engine"
 	"github.com/trafficstars/echo/engine/fasthttp"
 )
 

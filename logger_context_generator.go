@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/labstack/echo"
 	labstacklog "github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
+	"github.com/trafficstars/echo"
 )
 
 const (
