@@ -20,8 +20,6 @@ github.com/klauspost/compress v1.8.2 h1:Bx0qjetmNjdFXASH02NSAREKpiaDwkO1DRZ3dV2K
 github.com/klauspost/compress v1.8.2/go.mod h1:RyIbtBH6LamlWaDj8nUwkbUhJ87Yi3uG0guNDohfE1A=
 github.com/klauspost/cpuid v1.2.1 h1:vJi+O/nMdFt0vqm8NZBI6wzALWdA2X+egi0ogNyrC/w=
 github.com/klauspost/cpuid v1.2.1/go.mod h1:Pj4uuM528wm8OyEC2QMXAi2YiTZ96dNQPGgoMS4s3ek=
-github.com/labstack/echo v2.2.0+incompatible h1:WHGirux72mcAqh0rDGCNqhMkIF2VxCJjFsrOuqi+5hk=
-github.com/labstack/echo v2.2.0+incompatible/go.mod h1:0INS7j/VjnFxD4E2wkz67b8cVwCLbBmJyDaka6Cmk1s=
 github.com/labstack/gommon v0.0.4-0.20160925181133-f3b1a1b3bd47/go.mod h1:/tj9csK2iPSBvn+3NLM9e52usepMtrd5ilFYA+wQNJ4=
 github.com/labstack/gommon v0.3.0 h1:JEeO0bvc78PKdyHxloTKiF8BD5iGrH8T6MSeGvSgob0=
 github.com/labstack/gommon v0.3.0/go.mod h1:MULnywXg0yavhxWKc+lOruYdAhDwPK9wf0OL7NoOu+k=
@@ -42,8 +40,8 @@ github.com/stretchr/testify v1.1.5-0.20160925220609-976c720a22c8/go.mod h1:a8OnR
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
-github.com/trafficstars/echo v1.2.1-0.20200317151659-52f1d3dc88f2 h1:Q0/6bYUO8YR34WkKDQS3egtkIcKoCDVsYKSWnEj441w=
-github.com/trafficstars/echo v1.2.1-0.20200317151659-52f1d3dc88f2/go.mod h1:3h3M8PDRTOKGkwUWcb3I6YDC2RL3u5IYKKXoWIOvEq4=
+github.com/trafficstars/echo v1.2.1-0.20210118175209-73964bf4328a h1:hBJMC0h4x3d88VC9jg0muVnhBA84XDY8UUfSmFagjVo=
+github.com/trafficstars/echo v1.2.1-0.20210118175209-73964bf4328a/go.mod h1:+0vyH6LvqsfjwAhQuWS+MGoB7G5a4k/2KeeRJAAvcgM=
 github.com/tylerb/graceful v1.2.13/go.mod h1:LPYTbOYmUTdabwRt0TGhLllQ0MUNbs0Y5q1WXJOI9II=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
