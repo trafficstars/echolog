@@ -1,7 +1,7 @@
 package echolog
 
 import (
-	echolog "github.com/labstack/echo/log"
+	echolog "github.com/trafficstars/echo/log"
 )
 
 type Logger = echolog.Logger

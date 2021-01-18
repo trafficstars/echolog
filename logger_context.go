@@ -8,10 +8,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/labstack/echo"
-	echolog "github.com/labstack/echo/log"
 	labstacklog "github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
+	"github.com/trafficstars/echo"
+	echolog "github.com/trafficstars/echo/log"
 )
 
 // CtxShouldLogExchange is used as context key to enforce request/response logging
